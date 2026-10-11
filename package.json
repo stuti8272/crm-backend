@@ -1,31 +1,32 @@
 {
-    "name":  "crm-backend",
-    "version":  "1.0.0",
-    "description":  "",
-    "homepage":  "https://github.com/sumittech92/crm-backend#readme",
-    "bugs":  {
-                 "url":  "https://github.com/sumittech92/crm-backend/issues"
-             },
-    "repository":  {
-                       "type":  "git",
-                       "url":  "git+https://github.com/sumittech92/crm-backend.git"
-                   },
-    "license":  "ISC",
-    "author":  "Stuti",
-    "type":  "module",
-    "main":  "index.js",
-    "scripts":  {
-                    "test":  "echo \"Error: no test specified\" \u0026\u0026 exit 1",
-                    "dev":  "nodemon index.js"
-                },
-    "dependencies":  {
-                         "axios":  "^1.20.0",
-                         "cors":  "^2.8.6",
-                         "dotenv":  "^18.0.7",
-                         "express":  "^5.3.0",
-                         "http-status-codes":  "^2.3.0",
-                         "jsonwebtoken":  "^9.0.3",
-                         "mongoose":  "^9.11.1",
-                         "nodemon":  "^3.1.14"
-                     }
+    "name": "crm-backend",
+    "version": "1.0.0",
+    "description": "",
+    "homepage": "https://github.com/sumittech92/crm-backend#readme",
+    "bugs": {
+        "url": "https://github.com/sumittech92/crm-backend/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/sumittech92/crm-backend.git"
+    },
+    "license": "ISC",
+    "author": "Stuti",
+    "type": "module",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "nodemon index.js"
+    },
+    "dependencies": {
+        "axios": "^1.20.0",
+        "cors": "^2.8.6",
+        "dotenv": "^18.0.7",
+        "express": "^5.3.0",
+        "http-status-codes": "^2.3.0",
+        "joi": "^18.2.9",
+        "jsonwebtoken": "^9.0.3",
+        "mongoose": "^9.11.1",
+        "nodemon": "^3.1.14"
+    }
 }
