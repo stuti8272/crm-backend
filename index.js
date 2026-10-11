@@ -1,13 +1,9 @@
 import dotenv from 'dotenv';
 import http from 'http';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import app from './src/index.js';
 import connectDB from './src/config/db.js';
 
-const currentFile = fileURLToPath(import.meta.url);
-const currentDirectory = path.dirname(currentFile);
-dotenv.config({ path: path.join(currentDirectory, 'src/.env') });
+dotenv.config();
 
 const port = process.env.PORT || 3000;
 
