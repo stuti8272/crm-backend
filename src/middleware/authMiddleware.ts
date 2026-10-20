@@ -73,3 +73,10 @@ export const requireSuperAdmin = (req, res, next) => {
   }
   return next();
 };
+
+export const requireAdmin = (req, res, next) => {
+  if (req.role !== "admin" && req.role !== "superAdmin") {
+    return res.status(403).json({ auth: false, message: "Admin access required" });
+  }
+  return next();
+};
