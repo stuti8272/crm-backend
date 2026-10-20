@@ -1,6 +1,6 @@
-﻿import { Router } from "express";
-import { forgotPassword, login, logout, register, resetPassword, verifyOtp,} from "../../controller/auth.js";
-import { verifyAuthToken } from "../../middleware/authMiddleware.js";
+import express from "express";
+import { forgotPassword, login, logout, createAdmin, createSuperAdmin, register, resetPassword, verifyOtp,} from "../../controller/auth.js";
+import { verifyAuthToken, requireSuperAdmin } from "../../middleware/authMiddleware.js";
 import {
   validateForgotPassword,
   validateLogin,
@@ -9,9 +9,11 @@ import {
   validateOtp,
 } from "../../validation/auth.js";
 
-const router = Router();
+const router = express.Router();
 
 router.post("/register", validateRegister, register);
+router.post("/create-superAdmin", validateRegister, createSuperAdmin);
+router.post("/create-admin", verifyAuthToken, requireSuperAdmin, validateRegister, createAdmin);
 router.post("/login", validateLogin, login);
 router.post("/forgot-password", validateForgotPassword, forgotPassword);
 router.post("/verify-otp", validateOtp, verifyOtp);

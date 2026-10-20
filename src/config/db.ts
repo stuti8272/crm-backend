@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 async function connectDB() {
-  const mongoUri = process.env.DB_URI_;
+  const mongoUri = process.env.DB_URI;
 
   if (!mongoUri) {
     throw new Error('DB_URI_ is missing from the environment');

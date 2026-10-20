@@ -1,4 +1,4 @@
-﻿
+
 import jwt from "jsonwebtoken";
 import AuthModel from "../model/Auth/auth.js";
 
@@ -24,11 +24,7 @@ export const verifyAuthToken = async (req, res, next) => {
       });
     }
 
-    const user = await AuthModel.findOne({
-      accessToken,
-      role: decoded.role,
-      isDeleted: false,
-    }).lean();
+    const user = await AuthModel.findOne({ accessToken, role: decoded.role, isDeleted: false}).lean();
 
     if (!user) {
       return res.status(401).json({
@@ -51,10 +47,7 @@ export const verifyAuthToken = async (req, res, next) => {
     next();
   } catch (error) {
     if (
-      error.name === "TokenExpiredError" ||
-      error.name === "JsonWebTokenError" ||
-      error.name === "NotBeforeError"
-    ) {
+      error.name === "TokenExpiredError" || error.name === "JsonWebTokenError" || error.name === "NotBeforeError") {
       return res.status(401).json({
         auth: false,
         message:
@@ -73,3 +66,10 @@ export const verifyAuthToken = async (req, res, next) => {
 
 
 
+
+export const requireSuperAdmin = (req, res, next) => {
+  if (req.role !== "superAdmin") {
+    return res.status(403).json({ auth: false, message: "Super-admin access required" });
+  }
+  return next();
+};

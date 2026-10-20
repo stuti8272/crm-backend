@@ -1,4 +1,4 @@
-﻿import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { AuthClass } from "../services/Auth/auth.js";
 import AuthModel from "../model/Auth/auth.js";
 import { sendErrorResponse, sendSuccessResponse } from "../utilis/response.js";
@@ -6,39 +6,57 @@ import HttpStatus from "http-status-codes";
 
 const allowedRoles = ["superAdmin", "admin", "teacher", "student", "parent"];
 
-export const register = async (req, res) => {
-  try {
-    const { fullName, email, password, countryCode, phoneNumber } = req.body;
-    const normalizedEmail = email.toLowerCase();
-    const normalizedPhone = phoneNumber;
+const normalizeEmail = (email: string) => email.trim().toLowerCase();
+const normalizePhone = (countryCode: string, phoneNumber: string) => `${countryCode.trim()}${phoneNumber.trim()}`;
 
+const createAccount = async (req, res, role: "student" | "admin" | "superAdmin", message: string) => {
+  try {
+    const { fullName, email, password, countryCode, phoneNumber, workType } = req.body;
+    const normalizedEmail = normalizeEmail(email);
+    const normalizedPhone = phoneNumber.trim();
     if (await AuthModel.exists({ email: normalizedEmail, isDeleted: false })) {
       return sendErrorResponse(res, "Email already exists", HttpStatus.CONFLICT);
     }
     if (await AuthModel.exists({ phoneNumber: normalizedPhone, isDeleted: false })) {
       return sendErrorResponse(res, "Phone number already exists", HttpStatus.CONFLICT);
     }
-
-    const hashedPassword = await AuthClass.hashSecret(password);
     const user = await AuthClass.create({
-      fullName, email: normalizedEmail, password: hashedPassword,
-      countryCode, phoneNumber: normalizedPhone, role: "student",
+      fullName, email: normalizedEmail, password: await AuthClass.hashSecret(password),
+      countryCode, phoneNumber: normalizedPhone, role, workType,
     });
-    return sendSuccessResponse(res, "Registration successful", user, HttpStatus.CREATED);
+    return sendSuccessResponse(res, message, user, HttpStatus.CREATED);
   } catch (error) {
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern ?? {})[0];
-      return sendErrorResponse(
-        res,
-        field === "phoneNumber" ? "Phone number already exists" : "Email already exists",
-        HttpStatus.CONFLICT,
-      );
+      return sendErrorResponse(res, field === "phoneNumber" ? "Phone number already exists" : "Email already exists", HttpStatus.CONFLICT);
     }
-    console.error("Registration error:", error);
+    console.error(`${role} creation error:`, error);
     return sendErrorResponse(res, "Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
   }
 };
 
+// Configure entries as email|countryCode|phoneNumber, separated by commas (maximum two).
+export const createSuperAdmin = async (req, res) => {
+  const allowlist = (process.env.SUPERADMIN_ALLOWLIST ?? "")
+    .split(",")
+    .map((entry) => entry.trim().split("|"))
+    .filter(([email, countryCode, phoneNumber]) => email && countryCode && phoneNumber);
+  if (allowlist.length === 0 || allowlist.length > 2) {
+    return sendErrorResponse(res, "Super-admin bootstrap is not configured", HttpStatus.SERVICE_UNAVAILABLE);
+  }
+  const email = normalizeEmail(req.body.email);
+  const phone = normalizePhone(req.body.countryCode, req.body.phoneNumber);
+  const isAllowed = allowlist.some(([allowedEmail, countryCode, phoneNumber]) =>
+    normalizeEmail(allowedEmail) === email && normalizePhone(countryCode, phoneNumber) === phone,
+  );
+  if (!isAllowed) {
+    return sendErrorResponse(res, "This email and phone are not authorized for super-admin setup", HttpStatus.FORBIDDEN);
+  }
+  return createAccount(req, res, "superAdmin", "Super-admin account created");
+};
+
+export const register = async (req, res) => createAccount(req, res, "student", "Registration successful");
+export const createAdmin = async (req, res) => createAccount(req, res, "admin", "Admin account created");
 export const login = async (req, res) => {
   try {
     const { email, phoneNumber, countryCode, password } = req.body;
