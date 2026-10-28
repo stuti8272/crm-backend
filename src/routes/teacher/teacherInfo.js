@@ -4,7 +4,7 @@ import { verifyAuthToken, requireAdmin, requireMatchingWorkType } from "../../mi
 import { validateCreateTeacher } from "../../validation/teacher.js";
 
 const router = express.Router();
-
+////////////
 router.post("/create", verifyAuthToken, requireAdmin, validateCreateTeacher, requireMatchingWorkType, createTeacher);
 router.get("/", verifyAuthToken, requireAdmin, requireMatchingWorkType, getTeachers);
 router.get("/:teacherId", verifyAuthToken, requireAdmin, requireMatchingWorkType, getTeacher);
